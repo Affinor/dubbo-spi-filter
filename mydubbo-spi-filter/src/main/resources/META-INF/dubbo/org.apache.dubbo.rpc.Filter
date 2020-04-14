@@ -1,0 +1,2 @@
+ipmonitor=com.jin.demo.dubbo.TPMonitorFilter
+transportip=com.jin.demo.dubbo.TransportIPFilter
