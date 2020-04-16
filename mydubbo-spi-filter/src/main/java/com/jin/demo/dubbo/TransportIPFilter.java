@@ -15,10 +15,10 @@ public class TransportIPFilter implements Filter {
         RpcContext context = RpcContext.getContext();
         URL url = invoker.getUrl();
         if (context.isConsumerSide()){
-            context.getAttachments().put("realIp",url.getIp()+":"+url.getPort());
+            context.getAttachments().put("browserIp",String.valueOf(invocation.getArguments()[0]));
         }
         if (context.isProviderSide()){
-            System.out.println("realIp==>>"+context.getAttachment("realIp"));
+            System.out.println("browserIp==>>"+context.getAttachment("browserIp"));
         }
         return invoker.invoke(invocation);
     }

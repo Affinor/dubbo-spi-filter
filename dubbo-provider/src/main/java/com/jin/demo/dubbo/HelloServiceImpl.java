@@ -39,4 +39,9 @@ public class HelloServiceImpl implements HelloService {
         }
         return "hello3:"+name;
     }
+
+    @Override
+    public String browserIp(String browserIp) {
+        return "browserIp:"+browserIp;
+    }
 }
