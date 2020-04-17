@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 public class SlidingWindow {
     /**
      * 循环队列，就是装多个窗口用
+     * 循环数组+链表实现时间滑动窗口
      */
     private AtomicReferenceArray<CopyOnWriteArrayList<TpInfo>> timeSlices;
     /**
@@ -37,6 +38,7 @@ public class SlidingWindow {
 
     public SlidingWindow(int timeMillisPerSlice, int windowSize) {
         this.timeMillisPerSlice = timeMillisPerSlice;
+        //窗口大小要加1，因为有个一时间片总是空的
         this.windowSize = windowSize+1;
         this.timeSliceSize = windowSize+1;
         reset();
@@ -80,6 +82,10 @@ public class SlidingWindow {
         timeSlices.get(index).add(tpInfo);
     }
 
+    /**
+     * 清空下个index时间片上的数据
+     * @param index
+     */
     private void clearFromIndex(int index) {
         int a = 0;
         if (index + 1 >= windowSize){
@@ -97,20 +103,26 @@ public class SlidingWindow {
      */
     public Long calculateTpCount(Double tpCount){
         List<Long> list = new ArrayList<>();
+        //遍历所有时间片位置上的数据，找出耗时
         for (int i = 0; i < timeSlices.length(); i++) {
             timeSlices.get(i).stream()
                     .mapToLong(tpInfo -> tpInfo.getUseTime())
                     .forEach(value -> list.add(Long.valueOf(value)));
         }
+        //如果没有数据或者只有一个，就直接返回
         if (list.size()==0){
             return 0L;
         }else if (list.size()==1){
             return list.get(0);
         }
         return list.stream()
+                //升序排序
                 .sorted(Comparator.comparingLong(Long::longValue))
+                //跳过前(n-1)个
                 .skip((long) (list.size() * tpCount)-1L)
+                //进行截取第1个
                 .limit((long) (list.size() * tpCount))
+                //截取到的就是我们要找的那个值
                 .findFirst()
                 .get();
     }

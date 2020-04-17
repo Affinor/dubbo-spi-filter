@@ -30,13 +30,17 @@ public class TPMonitorFilter implements Filter, Runnable {
         long end = System.currentTimeMillis();
         RpcContext context = RpcContext.getContext();
         String methodName = context.getMethodName();
+        //创建一个耗时统计对象，并设置
         TpInfo tpInfo = new TpInfo();
         tpInfo.setCurrentTime(System.currentTimeMillis());
         tpInfo.setMethodName(methodName);
         tpInfo.setUseTime(end-start);
+        //如果有这个key，直接累计
         if (WindowMap.containsKey(methodName)){
             WindowMap.get(methodName).addCount(tpInfo);
         }else {
+            //如果没有，就创建一个
+            //每个时间片的长度为5秒，12个时间片，就是1分钟
             SlidingWindow slidingWindow = new SlidingWindow(5000,12);
             slidingWindow.addCount(tpInfo);
             WindowMap.put(methodName,slidingWindow);
